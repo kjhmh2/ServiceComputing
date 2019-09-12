@@ -48,9 +48,9 @@
   go install
   ```
 
-  **【结果】**完成这一步之后，在 pkg/linux_amd64/ 文件夹下会生成子文件夹 github.com/github-user（与src下的目录一致），并在其中生成一个文件stringutil.a，即生成的包stringutil
+  【**结果**】完成这一步之后，在 pkg/linux_amd64/ 文件夹下会生成子文件夹 github.com/github-user（与src下的目录一致），并在其中生成一个文件stringutil.a，即生成的包stringutil
 
-  - **注意：**install生成包的名字是`reverse.go`文件所在的文件夹的名字，或者说导入路径的最后一个元素（即stringutil），而不是reverse
+  - **注意**：install生成包的名字是`reverse.go`文件所在的文件夹的名字，或者说导入路径的最后一个元素（即stringutil），而不是reverse
 
   ![结果](C:\Users\LENOVO\AppData\Roaming\Typora\typora-user-images\1568252389925.png)
 
