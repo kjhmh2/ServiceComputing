@@ -52,7 +52,7 @@
 
   - **注意：**install生成包的名字是`reverse.go`文件所在的文件夹的名字，或者说导入路径的最后一个元素（即stringutil），而不是reverse
 
-  ![1568252389925](C:\Users\LENOVO\AppData\Roaming\Typora\typora-user-images\1568252389925.png)
+  ![结果](C:\Users\LENOVO\AppData\Roaming\Typora\typora-user-images\1568252389925.png)
 
 - 修改原来的hello.go文件（位于$GOPATH/src/github.com/github-user/ServiceComputing中）
 
@@ -84,7 +84,7 @@
 
 - 再次运行hello，得到reverse之后的信息
 
-  ![1568263552395](C:\Users\LENOVO\AppData\Roaming\Typora\typora-user-images\1568263552395.png)
+  ![结果](C:\Users\LENOVO\AppData\Roaming\Typora\typora-user-images\1568263552395.png)
 
   注意 `go install` 会将 `stringutil.a` 对象放到 `pkg/linux_amd64` 目录中，它会反映出其源码目录。 这就是在此之后调用 `go` 工具，能找到包对象并避免不必要的重新编译的原因。 `linux_amd64` 这部分能帮助跨平台编译，并反映出你的操作系统和架构。
 
@@ -136,10 +136,11 @@
 
 - 使用 go test运行该测试
 
-  ![1568264100117](C:\Users\LENOVO\AppData\Roaming\Typora\typora-user-images\1568264100117.png)
+  ![结果](C:\Users\LENOVO\AppData\Roaming\Typora\typora-user-images\1568264100117.png)
 
   如果在包目录下，则可以忽略包路径
 
-  ![1568264129236](C:\Users\LENOVO\AppData\Roaming\Typora\typora-user-images\1568264129236.png)
+  ![结果](C:\Users\LENOVO\AppData\Roaming\Typora\typora-user-images\1568264129236.png)
 
   此时多了一个PASS信息
+
