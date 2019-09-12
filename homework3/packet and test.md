@@ -104,6 +104,26 @@
 
   链接成单个二进制文件的所有包，其包名无需是唯一的，只有导入路径（它们的完整文件名） 才是唯一的。
 
+完成了上述步骤之后，工作空间如下
+
+```
+root/gowork/
+	bin/                                           #可执行命令
+		ServiceComputing
+	pkg/
+		linux_amd64/          
+			github.com/
+				github-user/
+					stringutil.a
+	src/
+		github.com/
+			github-user/
+				ServiceComputing/
+					hello.go
+				stringutil/
+					reverse.go
+```
+
 
 
 ## 测试
