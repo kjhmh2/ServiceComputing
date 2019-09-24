@@ -41,11 +41,12 @@ func process_args(args []string) {
 	pflag.StringVarP(&sa.dest, "destination","d", "", "name of printer")
 	pflag.Parse()
 	othersArg := pflag.Args()
-    if len(othersArg) > 0 {
-        sa.inFile = othersArg[0]
-    } else {
-        sa.inFile = ""
-    }
+	if len(othersArg) > 0 {
+		sa.inFile = othersArg[0]
+	} 
+	else {
+		sa.inFile = ""
+	}
 	/*
 	//参数数量不够
 	if len(args) < 3 {
@@ -161,7 +162,8 @@ func process_input() {
 				if sa.destination == "" {
 					//标准输出
 					fmt.Println(string(line))
-				} else {
+				} 
+				else {
 					//文件输出
 					fmt.Fprintln(cmd_in, string(line))
 				}
@@ -172,7 +174,8 @@ func process_input() {
 					line_count = 1
 					page_count++
 				}
-			} else {
+			} 
+			else {
 				if string(line) == "\f" {
 					page_count++
 				}
