@@ -129,7 +129,7 @@ var argcount int
 
 参数处理可以使用**pflag**包来解析命令的参数。[参考资料](https://studygolang.com/articles/5608)
 
-要import pflag包，要先在本地安装spf13/pflag
+要import pflag包，要先在本地安装pflag
 ```bash
 go get github.com/spf13/pflag
 ```
@@ -347,11 +347,11 @@ if string(line) == "\f" {
 
 这里有一个坑，go install会报错
 
-![1](E:\Study\Junior First\Sevice Computing\作业4\1.PNG)
+![1](https://github.com/JanelYul/ServiceComputing/raw/master/pics/1.PNG)
 
 后来查了资料发现是对selpg所在的上一级文件夹进行Install（因为install的是一个包），而不是对go源文件进行install。https://stackoverflow.com/questions/25216765/gobin-not-set-cannot-run-go-install
 
-![2](E:\Study\Junior First\Sevice Computing\作业4\2.PNG)
+![2](https://github.com/JanelYul/ServiceComputing/raw/master/pics/2.PNG)
 
 ##### 按照文档中“selpg使用”章节进行测试
 
@@ -359,32 +359,32 @@ if string(line) == "\f" {
 
 此时默认打印72行
 
-<img src="E:\Study\Junior First\Sevice Computing\作业4\t1.PNG" alt="t1" style="zoom: 67%;" />
+![t1](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t1.PNG)
 
 ##### selpg -s1 -e1 -l5 test.txt
 
 此时显示5行
 
-<img src="E:\Study\Junior First\Sevice Computing\作业4\t2.PNG" alt="t2" style="zoom:67%;" />
+![t2](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t2.PNG)
 
 **selpg -s1 -e1 < test.txt**
 
-<img src="E:\Study\Junior First\Sevice Computing\作业4\t3.PNG" alt="t3" style="zoom:67%;" />
+![t3](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t3.PNG)
 
 **selpg -s1 -e1 -l12 test.txt >out.txt**
 
 此时文件中的内容定向输出到out.txt文件中
 
-<img src="E:\Study\Junior First\Sevice Computing\作业4\t4.PNG" alt="t4" style="zoom:67%;" />
+![t4](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t4.PNG)
 
 **selpg -s1 -e0 -l12 test.txt >/dev/null**
 
 报错
 
-<img src="E:\Study\Junior First\Sevice Computing\作业4\t5.PNG" alt="t5" style="zoom:67%;" />
+![t5](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t5.PNG)
 
 ##### selpg -s1 -e1 -l5 test.txt | cat -n
 
 管道重定向
 
-<img src="E:\Study\Junior First\Sevice Computing\作业4\t6.PNG" alt="t6" style="zoom: 67%;" />
+![t6](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t6.PNG)
