@@ -3,7 +3,9 @@
 ### 参考资料
 
 [开发Linux命令行实用程序](https://www.ibm.com/developerworks/cn/linux/shell/clutil/index.html)
+
 [CLI 命令行实用程序开发基础](https://blog.csdn.net/C486C/article/details/82990187)
+
 ### 程序要求
 selpg从标准输入或从作为命令行参数给出的文件名读取文本输入。它允许用户指定来自该输入并随后将被输出的页面范围。
 #### 输入
@@ -347,11 +349,11 @@ if string(line) == "\f" {
 
 这里有一个坑，go install会报错
 
-![1](https://github.com/JanelYul/ServiceComputing/raw/master/pics/1.PNG)
+![1](https://github.com/JaneYul/ServiceComputing/raw/master/pics/1.PNG)
 
 后来查了资料发现是对selpg所在的上一级文件夹进行Install（因为install的是一个包），而不是对go源文件进行install。https://stackoverflow.com/questions/25216765/gobin-not-set-cannot-run-go-install
 
-![2](https://github.com/JanelYul/ServiceComputing/raw/master/pics/2.PNG)
+![2](https://github.com/JaneYul/ServiceComputing/raw/master/pics/2.PNG)
 
 ##### 按照文档中“selpg使用”章节进行测试
 
@@ -359,32 +361,32 @@ if string(line) == "\f" {
 
 此时默认打印72行
 
-![t1](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t1.PNG)
+![t1](https://github.com/JaneYul/ServiceComputing/raw/master/pics/t1.PNG)
 
 ##### selpg -s1 -e1 -l5 test.txt
 
 此时显示5行
 
-![t2](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t2.PNG)
+![t2](https://github.com/JaneYul/ServiceComputing/raw/master/pics/t2.PNG)
 
 **selpg -s1 -e1 < test.txt**
 
-![t3](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t3.PNG)
+![t3](https://github.com/JaneYul/ServiceComputing/raw/master/pics/t3.PNG)
 
 **selpg -s1 -e1 -l12 test.txt >out.txt**
 
 此时文件中的内容定向输出到out.txt文件中
 
-![t4](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t4.PNG)
+![t4](https://github.com/JaneYul/ServiceComputing/raw/master/pics/t4.PNG)
 
 **selpg -s1 -e0 -l12 test.txt >/dev/null**
 
 报错
 
-![t5](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t5.PNG)
+![t5](https://github.com/JaneYul/ServiceComputing/raw/master/pics/t5.PNG)
 
 ##### selpg -s1 -e1 -l5 test.txt | cat -n
 
 管道重定向
 
-![t6](https://github.com/JanelYul/ServiceComputing/raw/master/pics/t6.PNG)
+![t6](https://github.com/JaneYul/ServiceComputing/raw/master/pics/t6.PNG)
