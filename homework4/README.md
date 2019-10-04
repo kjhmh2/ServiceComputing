@@ -200,6 +200,8 @@ func main() {
 ```bash
 go get github.com/spf13/pflag
 ```
+注意安装后使用import的是github.com/spf13/pflag
+
 ##### 提示信息
 
 如果给出的参数不正确或者需要查看帮助 -help，那么会给出这里指定的字符串
