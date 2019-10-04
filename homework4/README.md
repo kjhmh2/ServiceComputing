@@ -103,61 +103,156 @@ selpg -s10 -e20 -dlp1
 
 ### 参数结构体
 
-设计一个结构体记录存放的参数。包括开始页、结束页、输入文件的名字、输出、一页的长度、分页方式
+设计一个结构体记录存放的参数。包括开始页、结束页、输入文件的名字、一页的行数、分页方式
 
 ```go
-type selpg_args struct {
-	start_page  int
-	end_page    int
-	in_filename string
-	dest        string
-	page_len    int
-	page_type   int
+type selgp_args struct{
+	start_page int                   //开始页数  -s1
+	end_page int                     //结束页数  -e5
+	input_file string                //输入文件  [input.txt]
+	page_type string                  //指定每页行数-l10 或 换行符-f
+	page_len int                     //每页多少行
+	destination string               //打印目的（打印机）
 }
 ```
-设置全局变量记录读取到的参数、程序名和参数个数
+设置全局变量记录读取到的参数
 
 ```go
-var sa selpg_args   
-var progname string 
-var argcount int
+var args selgp_args
+```
+
+
+
+### 主函数
+
+包括三个部分
+
+```go
+func main() {
+    get(&args)          //读取并处理参数
+    check(&args)             //检查参数是否合法
+    run(&args)               //运行
+}
 ```
 
 
 
 ### 读取并处理参数
 
-使用**os.Args**[（参考资料）](https://blog.csdn.net/guanchunsheng/article/details/79612153)获取用户输入的参数，得到一个包含参数的数组，数组中的每个元素是string类型的。
+#### Golang 的支持
 
-参数处理可以使用**pflag**包来解析命令的参数。[参考资料](https://studygolang.com/articles/5608)
+使用os，flag包，最简单处理参数的代码
+
+```go
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    for i, a := range os.Args[1:] {
+        fmt.Printf("Argument %d is %s\n", i+1, a)
+    }
+
+}
+```
+
+可以获取命令行结果如下
+
+![0](https://github.com/JaneYul/ServiceComputing/raw/master/homework4/pics/0.PNG)
+
+使用flag包的代码：
+
+```go
+package main
+
+import (
+    "flag" 
+    "fmt"
+)
+
+func main() {
+    var port int
+    flag.IntVar(&port, "p", 8000, "specify port to use.  defaults to 8000.")
+    flag.Parse()
+
+    fmt.Printf("port = %d\n", port)
+    fmt.Printf("other args: %+v\n", flag.Args())
+}
+```
+
+![0.1](https://github.com/JaneYul/ServiceComputing/raw/master/homework4/pics/0.1.PNG)
+
+[参考资料]([http://blog.studygolang.com/2013/02/%E6%A0%87%E5%87%86%E5%BA%93-%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90flag/](http://blog.studygolang.com/2013/02/标准库-命令行参数解析flag/))
+
+#### pflag包
+
+使用[**os.Args**](https://blog.csdn.net/guanchunsheng/article/details/79612153)获取用户输入的参数，得到一个包含参数的数组，数组中的每个元素是string类型的。
+
+参数处理可以使用[**pflag**](https://godoc.org/github.com/spf13/pflag)包来解析命令的参数。
+
+##### 安装
 
 要import pflag包，要先在本地安装pflag
+
 ```bash
 go get github.com/spf13/pflag
 ```
-然后可以通过下面的代码进行参数值的绑定,通过 **pflag.Parse()**方法让pflag 对标识和参数进行解析。之后就可以直接使用绑定的值。
-```go
-pflag.IntVarP(&sa.start_page,"start", "s", 0, "Start page of file")
-pflag.IntVarP(&sa.end_page,"end","e", 0, "End page of file")
-pflag.IntVarP(&sa.page_len,"linenum", "l", 20, "lines in one page")
-pflag.StringVarP(&sa.page_type,"printdes","f", "l", "flag splits page")
-pflag.StringVarP(&sa.dest, "destination","d", "", "name of printer")
-pflag.Parse()
+##### 提示信息
+
+如果给出的参数不正确或者需要查看帮助 -help，那么会给出这里指定的字符串
+
 ```
-提示信息，如果给出的参数不正确或者需要查看帮助 -help，那么会给出这里指定的字符串
-```go
 pflag.Usage = show_tips
 ```
-通过pflag.NArg()可以知道是否有要进行操作的文件。如果是pflag解析不了的类型参数。我们称这种参数为non-flag参数，flag解析遇到non-flag参数就停止了。pflag提供了Arg(i),Args()来获取non-flag参数，NArg()来获取non-flag的个数。所以可以使用`pflag.Arg(0)`来获取输入的文件路径
 
-##### **另外**
+##### 绑定参数
+
+```go
+	//func IntVarP(指向int变量的指针，名称，简写字符串，值，用法字符串)
+	pflag.IntVarP(&sa.start_page,"start_page", "s", 0, "Start page of file")
+	pflag.IntVarP(&sa.end_page,"end_page","e", 0, "End page of file")
+	pflag.IntVarP(&sa.page_len,"page_len", "l", 72, "lines in one page")  //默认72行一页
+	//func StringVarP(指向字符串变量的指针，名称，简写字符串，值，用法字符串)
+	pflag.StringVarP(&sa.page_type,"page_type","f", "l", "flag splits page")
+	pflag.StringVarP(&sa.destination, "destination","d", "", "name of printer")
+```
+
+##### 获取剩下的参数
+
+除了上述指定的参数，还有一个文件名参数是没有指定的，需要另外获取
+
+```go
+//获取剩下的输入文件参数（可能没有）
+other_args := pflag.Args()
+if len(other_args) > 0 {
+	args.input_file = other_args[0]
+} else {
+	args.input_file = ""
+}
+```
+
+##### 解析
+
+使用**pflag.Parse()**让pflag 将命令行解析为定义的标志。之后就可以直接使用绑定的值。
+
+```go
+pflag.Parse()
+```
+解析完以上参数后，可以通过调用pflag.Args()来获得未定义但输入了的参数，这里是文件名。
+
+#### **另外**
 
 如果手动判断每个参数，则需要判断参数个数、参数格式是否符合要求。不符合要求则输出错误信息，终止程序；符合要求则赋给参数结构体的每个变量中。
+
+此时需要通过 **a := os.Args** 先获取命令行中的参数并作为参数传入 get 函数中。需要程序名变量progname和记录参数个数argcount int
 
 ##### 参数少于3个
 
 ```go
-if len(args) < 3 {
+if len(a) < 3 {
 	fmt.Fprintf(os.Stderr, "%s: the num arguments is less 3\n", progname)
 	show_tips()
 	os.Exit(1)
@@ -169,21 +264,21 @@ if len(args) < 3 {
 先判断第一个参数是不是"-s"形式
 
 ```go
-if args[1][0] != '-' || args[1][1] != 's' {
-	fmt.Fprintf(os.Stderr, "%s: 1st arg should be -sstart_page\n", progname)
+if a[1][0] != '-' || a[1][1] != 's' {
+	fmt.Fprintf(os.Stderr, "%s: 1st arg should be -s[start_page]\n", progname)
 	show_tips()
 	os.Exit(1)
 }
 ```
 如果是，则从数组中提取出参数
 ```go
-	sp, _ := strconv.Atoi(args[1][2:])
-	if sp < 1 {
-		fmt.Fprintf(os.Stderr, "%s: start page should not be less than 1 %d\n", progname, sp)
-		show_tips()
-		os.Exit(1)
-	}
-	sa.start_page = sp
+sp, _ := strconv.Atoi(a[1][2:])
+if sp < 1 {
+	fmt.Fprintf(os.Stderr, "%s: start page should not be less than 1 %d\n", progname, sp)
+	show_tips()
+	os.Exit(1)
+}
+args.start_page = sp
 ```
 
 ##### 第二个参数：结束页数
@@ -191,19 +286,19 @@ if args[1][0] != '-' || args[1][1] != 's' {
 和start_page很类似，先判断是否符合"-e"格式再提取出参数
 
 ```go
-if args[2][0] != '-' || args[2][1] != 'e' {
+if a[2][0] != '-' || a[2][1] != 'e' {
 	fmt.Fprintf(os.Stderr, "%s: 2nd arg should be -e[end_page]\n", progname)
 	show_tips()
 	os.Exit(1)
 }
-
-ep, _ := strconv.Atoi(args[2][2:])
+//提取结束页数
+ep, _ := strconv.Atoi(a[2][2:])
 if ep < 1 || ep < sp {
 	fmt.Fprintf(os.Stderr, "%s: end page should not be less than 1 %d\n", progname, ep)
 	show_tips()
 	os.Exit(1)
 }
-sa.end_page = ep
+args.end_page = ep
 ```
 
 ##### option参数
@@ -213,59 +308,60 @@ sa.end_page = ep
 - 循环读取
 
 ```go
-	for {
-		if argindex > argcount-1 || args[argindex][0] != '-' {
-			break
-		}
-		switch args[argindex][1] {
+for {
+	if argindex > argcount-1 || a[argindex][0] != '-' {
+		break
+	}
+	switch a[argindex][1] {
 ```
 - -l
   判断-l后面跟着的数字是否符合格式
 
 ```go
 case 'l':
-	pl, _ := strconv.Atoi(args[argindex][2:])
+	pl, _ := strconv.Atoi(a[argindex][2:])
 	if pl < 1 {
 		fmt.Fprintf(os.Stderr, "%s: page length should not be less than 1 %d\n", progname, pl)
 		show_tips()
 		os.Exit(1)
 	}
-	sa.page_len = pl
+	args.page_len = pl
 	argindex++
 ```
 - -f
   -f参数后面不跟数字，所以判断-f参数的长度来判断是否合法
 
 ```go
-		case 'f':
-			if len(args[argindex]) > 2 {
-				fmt.Fprintf(os.Stderr, "%s: option should be \"-f\"\n", progname)
-				show_tips()
-				os.Exit(1)
-			}
-			sa.page_type = 'f'
-			argindex++
+case 'f':
+	if len(a[argindex]) > 2 {
+		fmt.Fprintf(os.Stderr, "%s: option should be \"-f\"\n", progname)
+		show_tips()
+		os.Exit(1)
+	}
+	args.page_type = 'f'
+	argindex++
 ```
 - -d
   根据说明，selpg不检查destination目的地，但是要确保-d后面跟着目的地
 
 ```go
-			if len(args[argindex]) == 2 {
-				fmt.Fprintf(os.Stderr, "%s: -d option requires a printer destination\n", progname)
-				Usage()
-				os.Exit(1)
-			}
-			sa.destination = args[argindex][2:]
-			argindex++
+case 'd':
+	if len(a[argindex]) <= 2 {
+		fmt.Fprintf(os.Stderr, "%s: -d option requires a printer destination\n", progname)
+		show_tips()
+		os.Exit(1)
+	}
+	args.destination = a[argindex][2:]
+	argindex++
 ```
 - 不合法参数
   如果不是以上的任何一种情况，需要报错处理
 
 ```go
-	default:
-		fmt.Fprintf(os.Stderr, "%s: unknown option", progname)
-		Usage()
-		os.Exit(1)
+default:
+	fmt.Fprintf(os.Stderr, "%s: unknown option", progname)
+	show_tips()
+	os.Exit(1)
 ```
 
 - 输入文件
@@ -273,71 +369,177 @@ case 'l':
 此时可能还有文件作为输入，或者没有（此时为标准输入），需要判断
 ```go
 if argindex <= argcount-1 {
-	sa.input_file = args[argindex]
+	args.input_file = a[argindex]
 }
 ```
 
 
 
-### 从标准输入或文件中获取输入然后输出到标准输出或文件中
+### 检查参数
+
+为了程序运行能够正确运行，需要检查参数是否合法，包括开始页数、结束页数和长度大于0，开始页数小于结束页数，-f 和 -l 参数不能同时使用。
+
+如果参数不合法，输出错误信息并终止程序。
+
+```go
+func check(args * selgp_args){
+	if args.start_page <= 0 || args.end_page <= 0 {
+		fmt.Fprintf(os.Stderr, "[Error] start page and end page must be larger than 0")
+		os.Exit(1)
+	} else if args.start_page > args.end_page {
+		fmt.Fprintf(os.Stderr, "[Error] end page must be not less than start page\n")
+		os.Exit(2)
+	} else if args.page_type == "f" && args.page_len != 72 {
+		fmt.Fprintf(os.Stderr, "[Error] -l and -f must be mutually exclusive\n")
+		os.Exit(3)
+	} else if args.page_len <= 0 {
+		fmt.Fprintf(os.Stderr, "[Error] page length must be larger than 0\n")
+		os.Exit(4)
+	} else {
+		fmt.Printf("start_page: %d\n end_page: %d\n input_file: %s\n page_type: %s\npage_len: %d\n destination: %s\n", args.start_page, args.end_page, args.input_file, args.page_type, args.page_len, args.destination)
+	}
+}
+```
+
+
+
+### selpg执行逻辑
 
 处理的过程即从某处读入内容，然后按照一定的格式输出到某处
 
-##### 实现-d
+#### -d
 
 如果有-d参数，则需要设置pipe[（参考资料）](https://godoc.org/os/exec#example-Command)
 
 ```go
-var cmd *exec.Cmd
+var cmd * exec.Cmd
 var cmd_in io.WriteCloser
 var cmd_out io.ReadCloser
-if sa.destination != "" {
-	cmd = exec.Command("bash", "-c", sa.destination)
+if args.destination != "" {
+	cmd = exec.Command("bash", "-c", args.destination)
 	cmd_in, _ = cmd.StdinPipe()
 	cmd_out, _ = cmd.StdoutPipe()
 	cmd.Start()
 }
 ```
 使用os/exec包，可以执行外部命令，将输出的数据作为外部命令的输入。使用exec.Command设定要执行的外部命令，cmd.StdinPipe()返回连接到command标准输入的管道pipe，cmd.Start()使某个命令开始执行，但是并不等到他执行结束。
-##### 实现-l
+#### 输入
 
-使用页数计数器，在满足一页的条件后页数计数器增加，判断页数是否在范围内，不是则继续读入下一行数据，否则结束读取数据。
+通过input_file是否为空来判断文件输入还是标准输入。另外，需要一行一行处理数据
 
-```go
-			line, _, err := fin.ReadLine()
-			if err != io.EOF && err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			if err == io.EOF {
-				break
-			}
-			if page_count >= sa.start_page && page_count <= sa.end_page {
-				if sa.destination == "" {
-					fmt.Println(string(line))
-				} 
-				else {
-					fmt.Fprintln(cmd_in, string(line))
-				}
-			}
-			line_count++
-```
-从输入中每次读取一行，然后对每一行进行计数，当行数到达-l后的数字，页数增加，判断页数是否在范围内然后输出。
+##### 文件输入
+
+文件输入需要打开文件，判断打开文件时是否发生错误，并将文件中读取到的内容放入缓冲中
 
 ```go
-				if line_count > sa.page_len {
-					line_count = 1
-					page_count++
-				}
+if args.input_file != "" {       //文件输入
+	infile, err := os.Open(args.input_file)
+	if err != nil {
+    	fmt.Println(err)
+		os.Exit(5)
+	}
+	infile_buf := bufio.NewReader(infile)
 ```
 
-##### 实现-f
-
-当有-f参数时，将sa.page_type赋值为’f’，从输入中每次读取一行，如果一行的字符为’\f’则页数计数增加，判断页数是否在范围内然后输出。
+循环读取文件中的每一行
 
 ```go
-if string(line) == "\f" {
-	page_count++
+for {
+	//读取输入文件中的一行
+	line, _, err := infile_buf.ReadLine()
+	if err != io.EOF && err != nil {
+	fmt.Println(err)
+		os.Exit(6)
+	} 
+	if err == io.EOF {
+		break
+	}
+```
+
+##### 标准输入
+
+标准输入则从控制台中读取到缓冲中
+
+```go
+else {   //标准输入
+	inconsole := bufio.NewScanner(os.Stdin)
+```
+
+循环读每一行
+
+```go
+for inconsole.Scan(){
+	line := inconsole.Text()
+	line += "\n"
+	if page_num >= args.start_page && page_num <= args.end_page { //输入在给定范围内，放入out_text
+		out_text += line
+	}
+```
+
+无论是哪种输入，对于-l和-f的实现是一样的
+
+#### -l 和 -f
+
+对行数和页数进行计数，如果读取的行数在start_page和end_page之间则将这一行输出
+
+对于-l：当行数到达-l后的数字，页数加1，判断页数是否在范围内，不是则继续读入下一行数据，否则结束。
+
+对于-f：读取一行后需要判断是否为换页符，如果是则换页
+
+```go
+//如果在打印范围内则输出到相应地方
+if page_num >= args.start_page && page_num <= args.end_page {
+	//输出
+	}
+	line_num++
+	//换页
+	if args.page_type == "l" && line_num > args.page_len {  //-l换页
+		line_num = 1
+		page_num ++
+	} else {
+		if string(line) == "\f" {    //换页符换页
+			page_num ++
+		}
+	}
+```
+#### 输出
+
+对于上面个代码段的注释//输出，文件输入和标准输入的输出处理方法是不一样的
+
+##### 文件输入
+
+如果是输出到文件中则先放在缓冲中，如果不是则直接标准输出
+
+```go
+//如果在打印范围内则输出到相应地方
+if page_num >= args.start_page && page_num <= args.end_page {
+	if args.destination == "" {
+		//标准输出
+		fmt.Println(string(line))
+	} else {
+		//文件输出
+		fmt.Fprintln(cmd_in, string(line))
+	}
+}
+```
+
+##### 标准输入
+
+如果是标准输出，则最后输出读取的最后一行即可；如果是文件输出，则需要输出到文件中，同时要结束标准输入。
+
+```go
+//输出
+if args.destination == "" {
+	fmt.Print(out_text)
+} else {
+	fmt.Fprint(cmd_in, out_text)
+	cmd_in.Close()
+	cmdBytes, err := ioutil.ReadAll(cmd_out)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Print(string(cmdBytes))
+	cmd.Wait()
 }
 ```
 
@@ -379,7 +581,7 @@ if string(line) == "\f" {
 
 ![t4](https://github.com/JaneYul/ServiceComputing/raw/master/homework4/pics/t4.PNG)
 
-**selpg -s1 -e0 -l12 test.txt >/dev/null**
+**selpg -s2 -e1 test.txt**
 
 报错
 
